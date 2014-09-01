@@ -1,21 +1,18 @@
 #!/bin/bash
 ES_HOST=${ES_HOST:-127.0.0.1}
-ES_PORT=${ES_PORT:-9300}
-EMBEDDED="false"
+ES_PORT=${ES_PORT:-9200}
 WORKERS=${ELASTICWORKERS:-1}
+LUMBERJACK_PORT=${PORT:-5043}
+SYSLOG_PORT=${PORT1:-514}
 
-if [ "$ES_HOST" = "127.0.0.1" ] ; then
-    EMBEDDED="true"
-fi
-
-cat << EOF > /opt/logstash.conf
+cat << EOF > /etc/logstash/conf.d/logstash.conf
 input {
   syslog {
     type => syslog
-    port => 514
+    port => ${SYSLOG_PORT}
   }
   lumberjack {
-    port => 5043
+    port => ${LUMBERJACK_PORT}
 
     ssl_certificate => "/opt/certs/logstash-forwarder.crt"
     ssl_key => "/opt/certs/logstash-forwarder.key"
@@ -29,8 +26,7 @@ output {
       debug => true
   }
 
-  elasticsearch {
-      embedded => $EMBEDDED
+  elasticsearch_http {
       host => "$ES_HOST"
       port => "$ES_PORT"
       workers => $WORKERS
@@ -38,5 +34,4 @@ output {
 }
 EOF
 
-
-exec java -jar /opt/logstash.jar agent -f /opt/logstash.conf -- web
+exec java -jar /opt/logstash/logstash.jar agent -f /etc/logstash/conf.d -- web
