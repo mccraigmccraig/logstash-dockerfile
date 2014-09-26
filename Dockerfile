@@ -18,6 +18,7 @@ ENV ELASTICWORKERS 1
 RUN wget -O - http://packages.elasticsearch.org/GPG-KEY-elasticsearch | apt-key add -
 RUN echo "deb http://packages.elasticsearch.org/logstash/1.3/debian stable main" > /etc/apt/sources.list.d/logstash.list
 RUN apt-get update
+RUN apt-get -y dist-upgrade
 RUN apt-get install -y wget openjdk-7-jre-headless
 RUN apt-get install -y logstash
 
